@@ -1,0 +1,26 @@
+<annotation>
+	<folder>a_human</folder>
+	<filename>503.jpg</filename>
+	<path>./human_validation/a_human/503.jpg</path>
+	<source>
+		<database>Unknown</database>
+	</source>
+	<size>
+		<width>2992</width>
+		<height>2992</height>
+		<depth>3</depth>
+	</size>
+	<segmented>0</segmented>
+	<object>
+		<name>person</name>
+		<pose>Unspecified</pose>
+		<truncated>0</truncated>
+		<difficult>0</difficult>
+		<bndbox>
+			<xmin>1415</xmin>
+			<ymin>1296</ymin>
+			<xmax>1703</xmax>
+			<ymax>2315</ymax>
+		</bndbox>
+	</object>
+</annotation>

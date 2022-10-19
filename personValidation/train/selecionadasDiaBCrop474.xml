@@ -1,0 +1,26 @@
+<annotation>
+	<folder>500bCrop</folder>
+	<filename>selecionadasDiaBCrop474.jpg</filename>
+	<path>C:\Users\giova\Documents\TCC\images3\labelImg-master\labelImg-master\dist\500bCrop\selecionadasDiaBCrop474.jpg</path>
+	<source>
+		<database>Unknown</database>
+	</source>
+	<size>
+		<width>746</width>
+		<height>560</height>
+		<depth>3</depth>
+	</size>
+	<segmented>0</segmented>
+	<object>
+		<name>person</name>
+		<pose>Unspecified</pose>
+		<truncated>0</truncated>
+		<difficult>0</difficult>
+		<bndbox>
+			<xmin>410</xmin>
+			<ymin>104</ymin>
+			<xmax>446</xmax>
+			<ymax>180</ymax>
+		</bndbox>
+	</object>
+</annotation>

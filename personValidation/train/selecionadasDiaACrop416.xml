@@ -1,0 +1,26 @@
+<annotation>
+	<folder>500aCrop</folder>
+	<filename>selecionadasDiaACrop416.jpg</filename>
+	<path>D:\Users\guilh\PycharmProjects\testingAugmentation\Selecionadas Dia Crop\500aCrop\selecionadasDiaACrop416.jpg</path>
+	<source>
+		<database>Unknown</database>
+	</source>
+	<size>
+		<width>746</width>
+		<height>560</height>
+		<depth>3</depth>
+	</size>
+	<segmented>0</segmented>
+	<object>
+		<name>person</name>
+		<pose>Unspecified</pose>
+		<truncated>0</truncated>
+		<difficult>0</difficult>
+		<bndbox>
+			<xmin>640</xmin>
+			<ymin>298</ymin>
+			<xmax>679</xmax>
+			<ymax>401</ymax>
+		</bndbox>
+	</object>
+</annotation>
