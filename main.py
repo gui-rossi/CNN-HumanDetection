@@ -9,10 +9,26 @@ import time
 import sys
 import random
 from pathlib import Path
+from PIL import Image
 
 def visualize(image):
     plt.axis('off')
     plt.imshow(image)
+
+def convertToJpg():
+    path = "D:\\Users\\guilh\\PycharmProjects\\testingAugmentation\\personValidation\\train\\"
+
+    for file in os.listdir(path):
+        if not file.endswith(".jpg") and not file.endswith(".xml"):
+            img = Image.open(path + file)
+
+            if img.mode in ("RGBA", "P"):
+                img = img.convert("RGB")
+
+            file_name, file_ext = os.path.splitext(file)
+            img.save('D:\\Users\\guilh\\PycharmProjects\\testingAugmentation\\personValidation\\png\\' + file_name + '.jpg'.format(file_name))
+        time.sleep(0.3)
+
 
 def splitDataset(trainPercent = 0.8, validatePercent = 0.2):
     folder_dir = "D:\\Users\\guilh\\PycharmProjects\\testingAugmentation\\personValidation\\train\\"
@@ -31,9 +47,10 @@ def splitDataset(trainPercent = 0.8, validatePercent = 0.2):
         image_name = os.listdir(folder_dir)[randomized_file]
 
         if (image_name.endswith(".jpg")):
-            if (image_name not in file_name_array):
-                file_name_array.append(image_name)
-                i = i + 1
+            if ("Augmented" not in image_name):
+                if (image_name not in file_name_array):
+                    file_name_array.append(image_name)
+                    i = i + 1
     i = 0
     while (i < len(file_name_array)):
         fileName = file_name_array[i].split('.')[0]
@@ -67,15 +84,17 @@ def transformm():
                 bboxes.append(boxAux)
 
             transform = A.Compose(
-                    [A.CLAHE(),
-                     A.RandomRotate90(),
-                     #A.Transpose(),
-                     #A.ShiftScaleRotate(shift_limit=0.0625, scale_limit=0.50,
-                     #                   rotate_limit=45, p=.75),
-                     A.Blur(blur_limit=9),
-                     A.OpticalDistortion(),
-                     A.GridDistortion(),
-                     A.HueSaturationValue()], bbox_params=A.BboxParams(format='pascal_voc'))
+                [A.CLAHE(),
+                A.RandomRotate90(),
+                #A.Transpose(),
+                #A.ShiftScaleRotate(shift_limit=0.0625, scale_limit=0.50,
+                #                   rotate_limit=45, p=.75),
+                A.Blur(blur_limit=9),
+                A.OpticalDistortion(),
+                A.GridDistortion(),
+                A.HueSaturationValue(),
+                A.flip], bbox_params=A.BboxParams(format='pascal_voc'))
+
 
             augmented_image = transform(image=image, bboxes=bboxes)
             transformed_image = augmented_image['image']
@@ -209,15 +228,23 @@ def cropTimeSelecionadasDiaB():
 
         i = i + 1
 
+def deleteFiles():
+    folder_dir = "D:\\Users\\guilh\\PycharmProjects\\train"
+
+    for file in os.listdir(folder_dir):
+        if (file.__contains__("Augmented")):
+            os.remove(folder_dir + "\\" + file)
+
 def main():
-    #transformm()
     #cropTimeSelecionadas()
     #cropTimeSelecionadasCaminhao()
     #cropTimeSelecionadasNoturnas()
     #cropTimeSelecionadasDiaA()
     #cropTimeSelecionadasDiaB()
 
-    splitDataset()
+    convertToJpg()
+    #deleteFiles()
+    #splitDataset()
     #transformm()
 
     #image = cv2.imread('sample.jpg')
