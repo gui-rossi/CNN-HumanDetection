@@ -9,7 +9,8 @@ import time
 import sys
 import random
 from pathlib import Path
-from PIL import Image
+from PIL import Image, ImageEnhance
+import numpy as np
 
 def visualize(image):
     plt.axis('off')
@@ -31,8 +32,8 @@ def convertToJpg():
 
 
 def splitDataset(trainPercent = 0.8, validatePercent = 0.2):
-    folder_dir = "D:\\Users\\guilh\\PycharmProjects\\testingAugmentation\\personValidation\\train\\"
-    validate_split = "D:\\Users\\guilh\\PycharmProjects\\testingAugmentation\\personValidation\\validate\\"
+    folder_dir = "C:\\Users\\Guilherme\\OneDrive\\Área de Trabalho\\Combined\\train\\"
+    validate_split = "C:\\Users\\Guilherme\\OneDrive\\Área de Trabalho\\Combined\\validate\\"
 
     files = len(os.listdir(folder_dir))
     images = files/2
@@ -62,13 +63,13 @@ def splitDataset(trainPercent = 0.8, validatePercent = 0.2):
         i = i + 1
 
 def transformm():
-    folder_dir = "D:\\Users\\guilh\\PycharmProjects\\testingAugmentation\\personValidation\\train"
+    folder_dir = "C:\\Users\\Guilherme\\Dev\\CNN-HumanDetection\\newTruckValidation\\train\\"
 
     for file in os.listdir(folder_dir):
         if (file.endswith(".jpg")):
-            image = cv2.imread('personValidation\\train\\' + file)
+            image = cv2.imread('newTruckValidation\\train\\' + file)
 
-            xml = minidom.parse('personValidation\\train\\' + file.split('.')[0] + '.xml')
+            xml = minidom.parse('newTruckValidation\\train\\' + file.split('.')[0] + '.xml')
             bndbox = xml.getElementsByTagName('bndbox')
             classes = xml.getElementsByTagName('name')
 
@@ -84,16 +85,11 @@ def transformm():
                 bboxes.append(boxAux)
 
             transform = A.Compose(
-                [A.CLAHE(),
-                A.RandomRotate90(),
-                #A.Transpose(),
-                #A.ShiftScaleRotate(shift_limit=0.0625, scale_limit=0.50,
-                #                   rotate_limit=45, p=.75),
-                A.Blur(blur_limit=9),
-                A.OpticalDistortion(),
-                A.GridDistortion(),
+                [A.HorizontalFlip(),
+                #A.RandomRotate90(),
+                A.GaussNoise(),
                 A.HueSaturationValue(),
-                A.flip], bbox_params=A.BboxParams(format='pascal_voc'))
+                A.GridDistortion(),], bbox_params=A.BboxParams(format='pascal_voc'))
 
 
             augmented_image = transform(image=image, bboxes=bboxes)
@@ -105,16 +101,16 @@ def transformm():
             #    cv2.rectangle(image, (math.ceil(box[0]), math.ceil(box[1])), (math.ceil(box[2]), math.ceil(box[3])), (0, 255, 0), 3)
 
             #after augmentation image
-            cv2.imwrite('personValidation\\trainAugment\\' + file.split('.')[0] + 'Augmented.jpg', transformed_image)
-            source = 'personValidation\\train\\' + file.split('.')[0] + '.xml'
-            target = 'personValidation\\trainAugment\\' + file.split('.')[0] + 'Augmented.xml'
+            cv2.imwrite('newTruckValidation\\trainAugment\\' + file.split('.')[0] + 'Augmented3.jpg', transformed_image)
+            source = 'newTruckValidation\\train\\' + file.split('.')[0] + '.xml'
+            target = 'newTruckValidation\\trainAugment\\' + file.split('.')[0] + 'Augmented3.xml'
             shutil.copy(source, target)
 
             time.sleep(0.3)
 
             newXml = minidom.parse(target)
             newFilename = newXml.getElementsByTagName("filename")
-            newFilename[0].firstChild.replaceWholeText(file.split('.')[0] + 'Augmented.jpg')
+            newFilename[0].firstChild.replaceWholeText(file.split('.')[0] + 'Augmented3.jpg')
 
             newBndBoxes = newXml.getElementsByTagName('bndbox')
             print(file)
@@ -235,6 +231,67 @@ def deleteFiles():
         if (file.__contains__("Augmented")):
             os.remove(folder_dir + "\\" + file)
 
+def scaleUpImages():
+    folder_path = 'C:\\Users\\Guilherme\\Dev\\CNN-HumanDetection\\truck dataset'
+
+    kernel = np.array([[0, -1, 0],
+                      [-1, 5, -1],
+                      [0, -1, 0]])
+
+    k3 = np.ones((5, 5), np.float32) / 25
+
+    for file in os.listdir(folder_path):
+        img = cv2.imread('C:\\Users\\Guilherme\\Dev\\CNN-HumanDetection\\truck dataset\\' + file)
+        img = cv2.pyrUp(img)
+        img = cv2.pyrUp(img)
+
+        cv2.imwrite("C:\\Users\\Guilherme\\Dev\\CNN-HumanDetection\\truck dataset resized\\" + file, img)
+
+        image_sharp = cv2.filter2D(src=img, ddepth=-1, kernel=kernel)
+
+        cv2.imwrite("C:\\Users\\Guilherme\\Dev\\CNN-HumanDetection\\truck dataset resized\\2" + file, image_sharp)
+
+def brightenUp():
+    folder_path = 'C:\\Users\\Guilherme\\Dev\\CNN-HumanDetection\\2023-05-23\\'
+
+    for file in os.listdir(folder_path):
+        im = Image.open(folder_path + file)
+        enhancer = ImageEnhance.Brightness(im)
+
+        factor = 1.5  # brightens the image
+        im_output = enhancer.enhance(factor)
+        im_output.save(folder_path + file.split('.')[0] + 'brightened.jpg')
+
+
+def floorBoundingBoxes():
+    folder_path = 'C:\\Users\\Guilherme\\Dev\\CNN-HumanDetection\\personValidationNoturna\\validate\\'
+
+    for file in os.listdir(folder_path):
+        if ("xml" in file):
+            xml = minidom.parse(folder_path + file)
+
+            BndBoxes = xml.getElementsByTagName('bndbox')
+            print(file)
+            i = 0
+            try:
+                Filename = xml.getElementsByTagName("filename")
+                Filename[0].firstChild.replaceWholeText(file.split('.xml')[0] + '.jpg')
+
+                for box in BndBoxes:
+                    box.childNodes[1].firstChild.replaceWholeText(str(int(float(box.childNodes[1].firstChild.data))))
+                    box.childNodes[3].firstChild.replaceWholeText(str(int(float(box.childNodes[3].firstChild.data))))
+                    box.childNodes[5].firstChild.replaceWholeText(str(int(float(box.childNodes[5].firstChild.data))))
+                    box.childNodes[7].firstChild.replaceWholeText(str(int(float(box.childNodes[7].firstChild.data))))
+                    i = i + 1
+            except:
+                print(sys.exc_info()[0])
+                print(" imagem: ", file)
+
+            f = open(folder_path + file, 'w', encoding="utf-8")
+            xml.writexml(f)
+            f.close()
+
+
 def main():
     #cropTimeSelecionadas()
     #cropTimeSelecionadasCaminhao()
@@ -242,10 +299,13 @@ def main():
     #cropTimeSelecionadasDiaA()
     #cropTimeSelecionadasDiaB()
 
-    convertToJpg()
+    #convertToJpg()
     #deleteFiles()
-    #splitDataset()
+    splitDataset()
     #transformm()
+    #scaleUpImages()
+    #brightenUp()
+    #floorBoundingBoxes()
 
     #image = cv2.imread('sample.jpg')
     #crop_img = image[0:0 + 560, 0 + 54:0 + 800]
